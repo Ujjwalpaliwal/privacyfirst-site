@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Started — PrivacyFirst</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .option-section {
+      padding: 64px 0 0;
+    }
+    .option-section:first-of-type {
+      padding-top: 0;
+    }
+    .release-note {
+      border: 1px solid rgba(212, 160, 23, 0.3);
+      background: rgba(212, 160, 23, 0.06);
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--amber);
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+    .option-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+    .option-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .option-body {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.65;
+      max-width: 540px;
+      margin-bottom: 20px;
+    }
+    .download-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .download-note {
+      font-size: 12px;
+      color: var(--text-3);
+      font-family: var(--mono);
+    }
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+    }
+    .hero-sub-gs {
+      font-size: 16px;
+      color: var(--text-2);
+      max-width: 480px;
+      line-height: 1.65;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE HERO
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-bottom: 64px;">
+    <div class="container">
+      <div class="section-label">Get Started</div>
+      <h1 class="section-title">Run PrivacyFirst in under two minutes</h1>
+      <p class="hero-sub-gs">The app is self-contained. No cloud account, no signup, no telemetry.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       OPTION A — DESKTOP APP
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0; padding-bottom: 64px;">
+    <div class="container">
+      <div class="option-label">Desktop App</div>
+      <div class="option-title">Download the Electron app</div>
+      <p class="option-body">The GUI includes Chat Checkpoint, a live proxy log, and one-click Auto-protect configuration.</p>
+
+      <div class="download-group">
+        <a href="#" class="btn btn-primary" aria-disabled="true">Download for Windows</a>
+        <span class="download-note">Installer not published yet — build from source with <code>npm install &amp;&amp; npm run dev</code>. macOS + Linux planned.</span>
+      </div>
+
+      <div class="release-note">
+        v0.1.0 — Pre-release. Installer and npm package are not published yet.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       OPTION B — CLI
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-bottom: 64px;">
+    <div class="container">
+      <div class="option-label">Terminal (prifir CLI)</div>
+      <div class="option-title">Run the prifir CLI</div>
+      <p class="option-body">The CLI gives you full control from the terminal — start and stop the proxy, check status, and undo config changes. Not published to npm yet; run it from a local checkout.</p>
+
+      <div class="code-block">npm run build              <span class="dim"># once, from the repo</span>
+node packages/cli/bin/prifir.js       <span class="dim"># launches interactive wizard</span>
+node packages/cli/bin/prifir.js status <span class="dim"># show current protection state</span>
+node packages/cli/bin/prifir.js off    <span class="dim"># stop proxy + remove configs</span>
+node packages/cli/bin/prifir.js undo   <span class="dim"># restore all backed-up configs</span></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       OPTION C — NPX SERVE
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-bottom: 64px;">
+    <div class="container">
+      <div class="option-label">Demo Site Only</div>
+      <div class="option-title">Serve the site locally</div>
+      <p class="option-body">No install required. Spin up the demo site in one command.</p>
+
+      <div class="code-block">npx serve privacyfirst-site
+<span class="dim"># or just double-click index.html</span></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       REQUIREMENTS
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-bottom: 64px;">
+    <div class="container">
+      <div class="section-label">Requirements</div>
+      <h2 class="section-title">System requirements</h2>
+
+      <div class="table-wrap mt-32">
+        <table>
+          <thead>
+            <tr>
+              <th>Requirement</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Node.js</td>
+              <td>v18 or later</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">OS</td>
+              <td>Windows (current), macOS + Linux planned</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Internet</td>
+              <td>Only for AI API calls — detection is always offline</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Storage</td>
+              <td>&lt; 100 MB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       QUICKSTART WALKTHROUGH
+  ══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">Quickstart</div>
+      <h2 class="section-title">In 3 steps</h2>
+
+      <div class="roadmap-list mt-32">
+        <div class="roadmap-item">
+          <div class="roadmap-num">01</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Download and open the app</div>
+            <div class="roadmap-desc">The proxy starts automatically on 127.0.0.1:4040.</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">02</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">In Settings, enable Auto-protect</div>
+            <div class="roadmap-desc">PrivacyFirst previews the exact config changes and writes them with a backup.</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">03</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Open your AI coding tool normally</div>
+            <div class="roadmap-desc">All outgoing requests are now intercepted and sanitized.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+  <script src="js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Demo — PrivacyFirst</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── Demo-page specific ── */
+    .demo-page-hero {
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Expandable demo cards ── */
+    .demo-cards {
+      padding: 48px 0 96px;
+    }
+
+    .demo-cards > .container {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    /* ── Walkthrough ── */
+    .walk-scene-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+    }
+
+    .walk-panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      margin-bottom: 20px;
+    }
+
+    .walk-panel {
+      background: var(--bg-card);
+      padding: 20px;
+    }
+
+    .walk-panel-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .walk-panel-label.before { color: var(--text-3); }
+    .walk-panel-label.after  { color: var(--amber); }
+
+    .walk-text {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: var(--text-2);
+      white-space: pre-wrap;
+    }
+
+    .walk-text .masked { color: var(--amber); font-weight: 500; }
+    .walk-text .restored { color: var(--green); font-weight: 500; }
+    .walk-text .comment { color: var(--text-3); }
+
+    .walk-findings {
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .walk-finding-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 140px 70px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .walk-finding-row:last-child { border-bottom: none; }
+
+    .walk-finding-row.header {
+      background: var(--bg-3);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    @keyframes row-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .walk-finding-row.animate-in {
+      animation: row-in 200ms ease forwards;
+    }
+
+    .walk-status-bar {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-2);
+      margin-bottom: 20px;
+    }
+
+    .walk-status-bar .ok { color: var(--green); }
+    .walk-status-bar .warn { color: var(--amber); }
+
+    /* ── Scene progress ── */
+    .walk-progress {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .walk-step-pill {
+      flex: 1;
+      height: 3px;
+      background: var(--border-l);
+      cursor: pointer;
+      transition: background 300ms;
+    }
+
+    .walk-step-pill.done  { background: var(--green); }
+    .walk-step-pill.active { background: var(--amber); }
+
+    /* ── Scene label ── */
+    .walk-scene-label {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+
+    /* ── Live engine ── */
+    .live-inner {
+      padding: 32px;
+    }
+
+    .live-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .findings-empty {
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    .findings-summary {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--text-3);
+    }
+
+    .summary-inferred {
+      color: var(--text-3);
+      border-left: 1px solid var(--border-l);
+      padding-left: 8px;
+    }
+
+    /* ── BYO key panel ── */
+    .byo-panel {
+      margin-top: 32px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    .byo-grid {
+      display: grid;
+      grid-template-columns: 160px 1fr 120px;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .model-input {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color var(--transition);
+      border-radius: 0;
+      width: 100%;
+    }
+
+    .model-input:focus { border-color: var(--amber); }
+
+    .cors-note {
+      font-size: 11.5px;
+      color: var(--text-3);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .ai-reply-panel {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .ai-reply-header {
+      padding: 9px 14px;
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-reply-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    .ai-reply-body {
+      padding: 16px 18px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text-2);
+      white-space: pre-wrap;
+      min-height: 80px;
+    }
+
+    .ai-reply-body .masked { color: var(--amber); }
+    .ai-reply-body .restored { color: var(--green); }
+
+    @media (max-width: 640px) {
+      .walk-panel-grid { grid-template-columns: 1fr; }
+      .walk-finding-row { grid-template-columns: 80px 1fr 100px 50px; }
+      .byo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- Hero -->
+  <section class="demo-page-hero">
+    <div class="container">
+      <p class="section-label">LIVE DEMO</p>
+      <h1 class="section-title" style="max-width:600px;">
+        See what the AI<br>actually receives.
+      </h1>
+      <p class="section-sub">
+        Two cards below. The first walks through the exact detection flow,
+        step by step. The second is a live engine running real detectors
+        in your browser &mdash; optionally connected to your own API key.
+      </p>
+    </div>
+  </section>
+
+  <!-- Two expandable cards -->
+  <section class="demo-cards">
+    <div class="container" data-expand-group="demo">
+
+      <!-- Card 1: Animated walkthrough -->
+      <div class="expand-card" id="card-walk">
+        <div class="expand-header">
+          <div>
+            <div class="expand-title">See how it works</div>
+            <div class="expand-desc">
+              Animated walkthrough &mdash; two scenes: chat checkpoint and proxy mode.
+              Auto-plays, pausable.
+            </div>
+          </div>
+          <span class="expand-arrow" aria-hidden="true">+</span>
+        </div>
+        <div class="expand-body" id="walk-body">
+
+          <!-- Scene picker pills -->
+          <div style="padding: 24px 32px 0;">
+            <div class="walk-progress" id="walk-progress">
+              <!-- filled by JS -->
+            </div>
+            <div id="walk-scene-label" class="walk-scene-label">Scene 1 of 2</div>
+          </div>
+
+          <!-- Controls -->
+          <div class="walk-controls">
+            <button class="btn btn-secondary btn-sm" id="walk-prev">Prev</button>
+            <button class="btn btn-secondary btn-sm" id="walk-pause">Pause</button>
+            <button class="btn btn-secondary btn-sm" id="walk-next">Next</button>
+            <div style="flex:1"></div>
+            <div class="toggle-group" id="walk-toggle">
+              <button class="toggle-btn active" data-view="sanitized">As AI saw it</button>
+              <button class="toggle-btn" data-view="restored">Restored</button>
+            </div>
+          </div>
+
+          <!-- Scene A: Chat checkpoint -->
+          <div class="walk-scene active" id="scene-chat" data-scene="0">
+            <p class="walk-scene-title">Scene 1 &mdash; Chat Checkpoint</p>
+
+            <!-- Step 1: Original prompt -->
+            <div id="ws-c1">
+              <p class="walk-panel-label before mb-8">Original prompt</p>
+              <div class="code-block" style="margin-bottom:16px;">My name is Rahul Sharma, PAN ABCDE1234F, Aadhaar 2345 6789 0124,
+email rahul@acme.in. My salary is 18,00,000 INR.
+Help me calculate my tax liability under the new regime.</div>
+            </div>
+
+            <!-- Step 2: Findings -->
+            <div id="ws-c2" class="hidden">
+              <p class="walk-panel-label before mb-8">Detection results</p>
+              <div class="walk-findings">
+                <div class="walk-finding-row header">
+                  <span>Type</span><span>Original</span><span>Placeholder</span><span>Action</span>
+                </div>
+                <div class="walk-finding-row animate-in" style="animation-delay:0ms">
+                  <span class="td-type">PERSON</span>
+                  <span class="text-mono text-sm">Rahul Sharma</span>
+                  <span class="text-mono text-sm text-green">[PERSON_01]</span>
+                  <span class="demo-finding-action mask">MASK</span>
+                </div>
+                <div class="walk-finding-row animate-in" style="animation-delay:120ms">
+                  <span class="td-type">PAN</span>
+                  <span class="text-mono text-sm">ABCDE1234F</span>
+                  <span class="text-mono text-sm text-green">[PAN_01]</span>
+                  <span class="demo-finding-action mask">MASK</span>
+                </div>
+                <div class="walk-finding-row animate-in" style="animation-delay:240ms">
+                  <span class="td-type">AADHAAR</span>
+                  <span class="text-mono text-sm">2345 6789 0124</span>
+                  <span class="text-mono text-sm text-green">[AADHAAR_01]</span>
+                  <span class="demo-finding-action mask">MASK</span>
+                </div>
+                <div class="walk-finding-row animate-in" style="animation-delay:360ms">
+                  <span class="td-type">EMAIL</span>
+                  <span class="text-mono text-sm">rahul@acme.in</span>
+                  <span class="text-mono text-sm text-green">[EMAIL_01]</span>
+                  <span class="demo-finding-action mask">MASK</span>
+                </div>
+              </div>
+              <div class="walk-status-bar">
+                <span class="warn">4 items masked</span> &nbsp;&middot;&nbsp;
+                Amounts (18,00,000 INR) kept &nbsp;&middot;&nbsp;
+                Aadhaar checksum <span class="ok">VALID</span>
+              </div>
+            </div>
+
+            <!-- Step 3: Sanitized + toggle -->
+            <div id="ws-c3" class="hidden">
+              <p class="walk-panel-label after mb-8">What the AI receives</p>
+              <div class="walk-panel-grid">
+                <div class="walk-panel">
+                  <div class="walk-panel-label before">Original</div>
+                  <div class="walk-text">My name is Rahul Sharma, PAN ABCDE1234F, Aadhaar 2345 6789 0124, email rahul@acme.in. My salary is 18,00,000 INR. Help me calculate my tax liability under the new regime.</div>
+                </div>
+                <div class="walk-panel">
+                  <div class="walk-panel-label after">Sanitized (sent)</div>
+                  <div class="walk-text" id="ws-c3-preview">My name is <span class="masked">[PERSON_01]</span>, PAN <span class="masked">[PAN_01]</span>, Aadhaar <span class="masked">[AADHAAR_01]</span>, email <span class="masked">[EMAIL_01]</span>. My salary is 18,00,000 INR. Help me calculate my tax liability under the new regime.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: AI reply + restore -->
+            <div id="ws-c4" class="hidden">
+              <p class="walk-panel-label after mb-8">AI reply &mdash; before restore</p>
+              <div class="code-block" style="margin-bottom:16px;" id="ws-c4-reply">Hi <span class="hl">[PERSON_01]</span>, based on your PAN <span class="hl">[PAN_01]</span> and Aadhaar <span class="hl">[AADHAAR_01]</span>, here's your tax calculation for FY 2024-25 under the new regime for a salary of 18,00,000 INR...</div>
+              <p class="walk-panel-label before mt-16 mb-8">After restore (what you see)</p>
+              <div class="code-block" id="ws-c4-restored">Hi <span class="ok">Rahul Sharma</span>, based on your PAN <span class="ok">ABCDE1234F</span> and Aadhaar <span class="ok">2345 6789 0124</span>, here's your tax calculation for FY 2024-25 under the new regime for a salary of 18,00,000 INR...</div>
+            </div>
+          </div>
+
+          <!-- Scene B: Proxy -->
+          <div class="walk-scene" id="scene-proxy" data-scene="1">
+            <p class="walk-scene-title">Scene 2 &mdash; Proxy Mode (opencode + .env)</p>
+
+            <div id="ws-p1">
+              <p class="walk-panel-label before mb-8">Agent reads .env &mdash; original request body</p>
+              <div class="code-block">POST /v1/messages  &rarr;  api.anthropic.com
+<span class="dim">{
+  "messages": [{
+    "role": "user",
+    "content": "Read my .env:\nDATABASE_URL=postgres://admin:p@ssw0rd@prod.db.internal:5432/app\nOPENAI_API_KEY=sk-proj-abc123xyz..."
+  }]
+}</span></div>
+            </div>
+
+            <div id="ws-p2" class="hidden">
+              <p class="walk-panel-label after mt-16 mb-8">After proxy intercept &mdash; sanitized body</p>
+              <div class="code-block">POST /v1/messages  &rarr;  api.anthropic.com
+<span class="dim">{
+  "messages": [{
+    "role": "user",
+    "content": "Read my .env:\nDATABASE_URL=<span class="hl">[SECRET_01]</span>\nOPENAI_API_KEY=<span class="hl">[SECRET_02]</span>"
+  }]
+}</span></div>
+              <div class="walk-status-bar mt-16">
+                <span class="ok">14:02:11</span> &nbsp;&rarr;&nbsp;
+                /v1/messages &nbsp;&middot;&nbsp;
+                opencode &nbsp;&middot;&nbsp;
+                <span class="warn">2 SECRET masked</span> &nbsp;&middot;&nbsp;
+                0 raw bytes of secrets sent
+              </div>
+            </div>
+
+            <div id="ws-p3" class="hidden">
+              <p class="walk-panel-label before mt-16 mb-8">Model reply (AI sees placeholders)</p>
+              <div class="code-block"><span class="dim">I see DATABASE_URL is set to <span class="hl">[SECRET_01]</span>.
+To connect: use the value stored in your vault.
+OPENAI_API_KEY (<span class="hl">[SECRET_02]</span>) looks like a project key.</span></div>
+              <p class="walk-panel-label after mt-16 mb-8">After restore (tool sees real values)</p>
+              <div class="code-block"><span class="dim">I see DATABASE_URL is set to <span class="ok">postgres://admin:p@ssw0rd@prod.db.internal:5432/app</span>.
+To connect: use the value stored in your vault.
+OPENAI_API_KEY (<span class="ok">sk-proj-abc123xyz...</span>) looks like a project key.</span></div>
+            </div>
+
+            <div id="ws-p4" class="hidden">
+              <p class="walk-panel-label before mt-16 mb-8">PASSTHROUGH mode &mdash; red warning</p>
+              <div class="code-block warn" style="border-color: var(--red); background: rgba(239,68,68,0.05);">RAW MODE &mdash; NOTHING IS BEING MASKED
+All bytes forwarded unchanged to upstream.
+Switch to SANITIZE to re-enable protection.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Card 2: Live engine -->
+      <div class="expand-card" id="card-live">
+        <div class="expand-header">
+          <div>
+            <div class="expand-title">Try it live</div>
+            <div class="expand-desc">
+              Real JS detectors running in your browser. Offline by default.
+              Optionally connect your own API key for a live model round-trip.
+            </div>
+          </div>
+          <span class="expand-arrow" aria-hidden="true">+</span>
+        </div>
+        <div class="expand-body">
+          <div class="live-inner">
+
+            <!-- Input -->
+            <div class="live-section-title">Input text</div>
+            <div class="demo-toolbar" style="margin-bottom:10px;">
+              <span style="font-size:12px;color:var(--text-3);">Presets:</span>
+              <button class="demo-preset" data-preset="tax">Tax prompt</button>
+              <button class="demo-preset" data-preset="env">Secrets / .env</button>
+              <button class="demo-preset" data-preset="support">Customer support</button>
+              <button class="demo-preset" data-preset="ner">Names, no context</button>
+              <button class="demo-preset" data-preset="aadhaar-invalid">Invalid Aadhaar</button>
+            </div>
+            <textarea
+              class="demo-textarea"
+              id="live-input"
+              placeholder="Paste any text here, or choose a preset above..."
+              rows="6"
+            ></textarea>
+            <div class="demo-toolbar">
+              <button class="btn btn-primary" id="live-sanitize-btn">Sanitize</button>
+              <button class="btn btn-secondary" id="live-clear-btn">Clear</button>
+              <label class="ner-toggle" title="Local NER (compromise.js) finds bare names with no context phrase, e.g. &quot;John called me&quot;. Runs entirely in this browser.">
+                <input type="checkbox" id="ner-enabled" checked>
+                <span>Local NER</span>
+              </label>
+              <span id="live-scanning" class="scanning hidden">
+                <span class="scanning-dot"></span>
+                <span class="scanning-dot"></span>
+                <span class="scanning-dot"></span>
+                Scanning...
+              </span>
+            </div>
+
+            <!-- Findings -->
+            <div id="live-findings-wrap" class="mt-16 hidden">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:8px;">
+                <div class="live-section-title">Detection results</div>
+                <div class="findings-summary" id="live-findings-summary"></div>
+              </div>
+              <div class="demo-findings" id="live-findings-table">
+                <div class="demo-finding-row header">
+                  <span>Type</span>
+                  <span>Original</span>
+                  <span>Placeholder</span>
+                  <span>Action</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="live-no-findings" class="hidden">
+              <div class="findings-empty">No PII detected in this text.</div>
+            </div>
+
+            <!-- Preview -->
+            <div id="live-preview-wrap" class="mt-16 hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div class="live-section-title">Sanitized preview</div>
+                <div class="toggle-group" id="live-preview-toggle">
+                  <button class="toggle-btn active" data-pview="sanitized">Sanitized</button>
+                  <button class="toggle-btn" data-pview="original">Original</button>
+                </div>
+              </div>
+              <div class="demo-preview" id="live-preview"></div>
+            </div>
+
+            <!-- BYO key -->
+            <div class="byo-panel" id="byo-section">
+              <div class="live-section-title">Optional &mdash; Send to a real model</div>
+              <div class="key-warning">
+                Your API key goes directly from this browser to your chosen provider.
+                It is never sent to any PrivacyFirst server. Key is held in browser memory only
+                &mdash; never localStorage, never a cookie. Close this tab to clear it.
+              </div>
+              <div class="byo-grid">
+                <select class="provider-select" id="byo-provider">
+                  <option value="">Provider</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="gemini">Gemini</option>
+                  <option value="ollama">Ollama (local)</option>
+                  <option value="custom">Custom endpoint</option>
+                </select>
+                <input
+                  type="password"
+                  class="key-input"
+                  id="byo-key"
+                  placeholder="API key (optional)"
+                  autocomplete="off"
+                >
+                <button class="btn btn-secondary" id="byo-send-btn">Send sanitized</button>
+              </div>
+              <div id="byo-model-row" class="hidden" style="margin-bottom:8px;">
+                <input type="text" class="model-input" id="byo-model" placeholder="Model (e.g. gpt-4o, claude-opus-4-5)" value="">
+              </div>
+              <div id="byo-custom-row" class="hidden" style="margin-bottom:8px;">
+                <input type="text" class="model-input" id="byo-endpoint" placeholder="Endpoint URL (e.g. http://localhost:11434/v1)">
+              </div>
+              <div id="byo-cors-note" class="cors-note hidden"></div>
+
+              <!-- AI reply -->
+              <div class="ai-reply-panel hidden" id="byo-reply-panel">
+                <div class="ai-reply-header">
+                  <span class="ai-reply-label">AI reply</span>
+                  <div class="toggle-group" id="byo-reply-toggle">
+                    <button class="toggle-btn active" data-rview="restored">Restored</button>
+                    <button class="toggle-btn" data-rview="raw">As AI saw it</button>
+                  </div>
+                </div>
+                <div class="ai-reply-body" id="byo-reply-body"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+  <script src="js/vendor/compromise.js"></script>
+  <script src="js/ner.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/engine.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Global vault for this demo session ────────────────────────────────
+    const vault = new PFEngine.Vault();
+
+    // ── Presets ───────────────────────────────────────────────────────────
+    const PRESETS = {
+      tax: `My name is Rahul Sharma, PAN ABCDE1234F, Aadhaar 2345 6789 0124, email rahul@acme.in. My salary is 18,00,000 INR. Help me calculate my tax liability under the new regime.`,
+      env: `DATABASE_URL=postgres://admin:p@ssw0rd@prod.db.internal:5432/app\nOPENAI_API_KEY=sk-proj-abc123xyz456789\nSTRIPE_SECRET_KEY=sk_live_abc123xyz456789\nREDIS_URL=redis://:redispassword@cache.internal:6379`,
+      support: `Customer: Priya Menon, priya@example.com\nCard: 4111 1111 1111 1111\nPhone: +91 98765 43210\nIssue: Payment declined on order #ORD-8821`,
+      ner: `John called me about the server outage. Rahul Sharma submitted the fix and Ananya approved it. Michael wants to ship on Friday.`,
+      'aadhaar-invalid': `My Aadhaar is 1234 5678 9012. This is an invalid number and should NOT be masked.`,
+    };
+
+    // ── Live engine ───────────────────────────────────────────────────────
+    const inputEl   = document.getElementById('live-input');
+    const scanBtn   = document.getElementById('live-sanitize-btn');
+    const clearBtn  = document.getElementById('live-clear-btn');
+    const scanning  = document.getElementById('live-scanning');
+    const findWrap  = document.getElementById('live-findings-wrap');
+    const noFind    = document.getElementById('live-no-findings');
+    const findTable = document.getElementById('live-findings-table');
+    const prevWrap  = document.getElementById('live-preview-wrap');
+    const previewEl = document.getElementById('live-preview');
+
+    // Presets
+    document.querySelectorAll('.demo-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.preset;
+        if (PRESETS[key]) {
+          inputEl.value = PRESETS[key];
+          clearResults();
+        }
+      });
+    });
+
+    clearBtn.addEventListener('click', () => {
+      inputEl.value = '';
+      clearResults();
+    });
+
+    let lastSanitized = '';
+    let lastOriginal  = '';
+    let lastInferred  = 0;
+
+    function clearResults() {
+      findWrap.classList.add('hidden');
+      noFind.classList.add('hidden');
+      prevWrap.classList.add('hidden');
+      document.getElementById('byo-reply-panel').classList.add('hidden');
+      // Reset findings table (keep header)
+      const rows = findTable.querySelectorAll('.demo-finding-row:not(.header)');
+      rows.forEach(r => r.remove());
+      vault.clear();
+      lastSanitized = '';
+      lastOriginal  = '';
+      lastInferred  = 0;
+    }
+
+    const nerToggle = document.getElementById('ner-enabled');
+
+    scanBtn.addEventListener('click', () => {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      clearResults();
+      vault.clear();
+
+      // Brief scanning animation
+      scanning.classList.remove('hidden');
+      scanBtn.disabled = true;
+
+      setTimeout(() => {
+        scanning.classList.add('hidden');
+        scanBtn.disabled = false;
+
+        const result = PFEngine.sanitize(text, vault, undefined, {
+          ner: nerToggle.checked,
+        });
+        lastOriginal  = text;
+        lastSanitized = result.sanitized;
+        lastInferred  = result.findings.filter(f => f.inferred).length;
+
+        if (result.findings.length === 0) {
+          noFind.classList.remove('hidden');
+        } else {
+          // Populate findings table
+          result.findings.forEach(f => {
+            const row = document.createElement('div');
+            row.className = 'demo-finding-row' + (f.inferred ? ' inferred' : '');
+            row.innerHTML = `
+              <span class="td-type">${escHtml(f.type)}${f.inferred ? '<span class="finding-tag" title="Found by the local NER pass, not by a context phrase">inferred</span>' : ''}</span>
+              <span class="demo-finding-orig">${escHtml(truncate(f.original, 32))}</span>
+              <span class="demo-finding-ph">${escHtml(f.placeholder)}</span>
+              <span class="demo-finding-action mask">${escHtml(f.action)}</span>
+            `;
+            findTable.appendChild(row);
+          });
+          findWrap.classList.remove('hidden');
+          const total = result.findings.length;
+          const inferred = lastInferred;
+          document.getElementById('live-findings-summary').innerHTML =
+            total + ' item' + (total === 1 ? '' : 's') + ' masked' +
+            (inferred ? ' <span class="summary-inferred">(' + inferred + ' inferred by local NER)</span>' : '');
+        }
+
+        // Preview
+        renderPreview('sanitized');
+        prevWrap.classList.remove('hidden');
+      }, 350);
+    });
+
+    // Preview toggle
+    const prevToggle = document.getElementById('live-preview-toggle');
+    prevToggle.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        prevToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPreview(btn.dataset.pview);
+      });
+    });
+
+    function renderPreview(mode) {
+      if (!lastSanitized) return;
+      if (mode === 'sanitized') {
+        // Highlight placeholders
+        const html = escHtml(lastSanitized).replace(
+          /\[([A-Z_]+_\d+)\]/g,
+          '<span class="masked">[$1]</span>'
+        );
+        previewEl.innerHTML = html;
+      } else {
+        previewEl.textContent = lastOriginal;
+      }
+    }
+
+    // ── BYO key ───────────────────────────────────────────────────────────
+    const providerSel = document.getElementById('byo-provider');
+    const keyInput    = document.getElementById('byo-key');
+    const sendBtn     = document.getElementById('byo-send-btn');
+    const modelRow    = document.getElementById('byo-model-row');
+    const customRow   = document.getElementById('byo-custom-row');
+    const corsNote    = document.getElementById('byo-cors-note');
+    const replyPanel  = document.getElementById('byo-reply-panel');
+    const replyBody   = document.getElementById('byo-reply-body');
+
+    const PROVIDER_NOTES = {
+      anthropic: 'Anthropic requires the <code>anthropic-dangerous-direct-browser-access: true</code> header for browser calls. This is sent automatically.',
+      ollama: 'Ollama requires <code>OLLAMA_ORIGINS=*</code> (or your site origin) to allow CORS. Start Ollama with that env var set.',
+      gemini: 'Gemini allows direct browser API calls. No extra headers needed.',
+      openai: 'OpenAI allows direct browser API calls from most origins.',
+      custom: 'Ensure your custom endpoint sets CORS headers to allow browser requests.',
+    };
+
+    providerSel.addEventListener('change', () => {
+      const v = providerSel.value;
+      modelRow.classList.toggle('hidden', !v);
+      customRow.classList.toggle('hidden', v !== 'custom');
+      if (v && PROVIDER_NOTES[v]) {
+        corsNote.innerHTML = PROVIDER_NOTES[v];
+        corsNote.classList.remove('hidden');
+      } else {
+        corsNote.classList.add('hidden');
+      }
+    });
+
+    let lastRawReply = '';
+    let lastRestoredReply = '';
+
+    sendBtn.addEventListener('click', async () => {
+      if (!lastSanitized) {
+        alert('Sanitize some text first.');
+        return;
+      }
+      const provider = providerSel.value;
+      const key      = keyInput.value.trim();
+      const model    = document.getElementById('byo-model').value.trim();
+      const endpoint = document.getElementById('byo-endpoint').value.trim();
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+      replyPanel.classList.add('hidden');
+
+      try {
+        let raw = '';
+        if (!provider || !key) {
+          // Mock fallback
+          raw = mockReply(lastSanitized);
+        } else {
+          raw = await callProvider(provider, key, model, endpoint, lastSanitized);
+        }
+        lastRawReply      = raw;
+        lastRestoredReply = vault.restore(raw);
+        renderReply('restored');
+        replyPanel.classList.remove('hidden');
+      } catch (e) {
+        // Fallback to mock on error
+        const raw = mockReply(lastSanitized);
+        lastRawReply = raw;
+        lastRestoredReply = vault.restore(raw);
+        renderReply('restored');
+        replyPanel.classList.remove('hidden');
+        // Show error note
+        replyBody.innerHTML = `<span style="color:var(--red);font-size:12px;">${escHtml(e.message)}</span><br><br>` + replyBody.innerHTML;
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send sanitized';
+      }
+    });
+
+    const replyToggle = document.getElementById('byo-reply-toggle');
+    replyToggle.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        replyToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderReply(btn.dataset.rview);
+      });
+    });
+
+    function renderReply(mode) {
+      if (mode === 'restored') {
+        const html = escHtml(lastRestoredReply).replace(
+          /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g,
+          '<span class="restored">$1</span>'
+        );
+        replyBody.innerHTML = html;
+      } else {
+        const html = escHtml(lastRawReply).replace(
+          /\[([A-Z_]+_\d+)\]/g,
+          '<span class="masked">[$1]</span>'
+        );
+        replyBody.innerHTML = html;
+      }
+    }
+
+    // ── Provider API calls ────────────────────────────────────────────────
+    async function callProvider(provider, key, model, endpoint, text) {
+      const msg = { role: 'user', content: text };
+
+      if (provider === 'anthropic') {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: JSON.stringify({
+            model: model || 'claude-opus-4-5',
+            max_tokens: 512,
+            messages: [msg],
+          }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error?.message || resp.statusText);
+        return data.content?.[0]?.text || '';
+      }
+
+      if (provider === 'openai' || provider === 'ollama' || provider === 'custom') {
+        const baseUrl = provider === 'custom' ? endpoint
+                      : provider === 'ollama'  ? 'http://localhost:11434/v1'
+                      : 'https://api.openai.com/v1';
+        const resp = await fetch(`${baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${key || 'ollama'}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: model || (provider === 'ollama' ? 'llama3' : 'gpt-4o'),
+            messages: [msg],
+            max_tokens: 512,
+          }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error?.message || resp.statusText);
+        return data.choices?.[0]?.message?.content || '';
+      }
+
+      if (provider === 'gemini') {
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model || 'gemini-2.0-flash'}:generateContent?key=${key}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text }] }] }),
+          }
+        );
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error?.message || resp.statusText);
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      }
+
+      throw new Error('Unknown provider');
+    }
+
+    function mockReply(sanitizedText) {
+      // Extract placeholders from sanitized text
+      const phs = [...sanitizedText.matchAll(/\[([A-Z_]+_\d+)\]/g)].map(m => m[0]);
+      const personPh = phs.find(p => p.startsWith('[PERSON')) || null;
+      const greeting = personPh
+        ? `Hello ${personPh}, I've reviewed your input.`
+        : 'Hello, I\'ve reviewed your input.';
+
+      let body = 'Here is a summary of what you shared:\n\n';
+      phs.forEach(ph => {
+        body += `  - ${ph} was detected and masked before this message.\n`;
+      });
+      body += '\n(This is a mock response \u2014 no real API key was used.)';
+      return `${greeting}\n\n${body}`;
+    }
+
+    // ── Animated walkthrough ──────────────────────────────────────────────
+    const SCENES = [
+      {
+        id: 'scene-chat',
+        steps: ['ws-c1', 'ws-c2', 'ws-c3', 'ws-c4'],
+        label: 'Scene 1 of 2 \u2014 Chat Checkpoint',
+      },
+      {
+        id: 'scene-proxy',
+        steps: ['ws-p1', 'ws-p2', 'ws-p3', 'ws-p4'],
+        label: 'Scene 2 of 2 \u2014 Proxy Mode',
+      },
+    ];
+
+    let currentScene = 0;
+    let currentStep  = 0;
+    let timer        = null;
+    let paused       = false;
+
+    const progressEl = document.getElementById('walk-progress');
+    const sceneLabel = document.getElementById('walk-scene-label');
+    const pauseBtn   = document.getElementById('walk-pause');
+    const prevBtn    = document.getElementById('walk-prev');
+    const nextBtn    = document.getElementById('walk-next');
+
+    function buildProgress() {
+      progressEl.innerHTML = '';
+      SCENES.forEach((s, si) => {
+        const pill = document.createElement('div');
+        pill.className = 'walk-step-pill';
+        if (si < currentScene) pill.classList.add('done');
+        else if (si === currentScene) pill.classList.add('active');
+        pill.addEventListener('click', () => goScene(si));
+        progressEl.appendChild(pill);
+      });
+    }
+
+    function showScene(sceneIdx, stepIdx) {
+      const scene = SCENES[sceneIdx];
+      // Hide all scenes
+      document.querySelectorAll('.walk-scene').forEach(s => s.classList.remove('active'));
+      document.getElementById(scene.id).classList.add('active');
+      // Hide all steps, show up to stepIdx
+      scene.steps.forEach((sid, i) => {
+        const el = document.getElementById(sid);
+        if (!el) return;
+        el.classList.toggle('hidden', i > stepIdx);
+      });
+      sceneLabel.textContent = scene.label;
+      buildProgress();
+    }
+
+    function goScene(sceneIdx) {
+      currentScene = Math.max(0, Math.min(sceneIdx, SCENES.length - 1));
+      currentStep  = 0;
+      showScene(currentScene, currentStep);
+    }
+
+    function advance() {
+      const scene = SCENES[currentScene];
+      if (currentStep < scene.steps.length - 1) {
+        currentStep++;
+        showScene(currentScene, currentStep);
+      } else if (currentScene < SCENES.length - 1) {
+        currentScene++;
+        currentStep = 0;
+        showScene(currentScene, currentStep);
+      } else {
+        // End: loop back
+        currentScene = 0;
+        currentStep  = 0;
+        showScene(currentScene, currentStep);
+      }
+    }
+
+    function startAuto() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        if (!paused) advance();
+      }, 2500);
+    }
+
+    pauseBtn.addEventListener('click', () => {
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    });
+
+    nextBtn.addEventListener('click', () => { paused = true; pauseBtn.textContent = 'Resume'; advance(); });
+    prevBtn.addEventListener('click', () => {
+      paused = true;
+      pauseBtn.textContent = 'Resume';
+      if (currentStep > 0) {
+        currentStep--;
+      } else if (currentScene > 0) {
+        currentScene--;
+        currentStep = SCENES[currentScene].steps.length - 1;
+      }
+      showScene(currentScene, currentStep);
+    });
+
+    // Walk toggle (as AI saw / restored) — updates scene 1 step 3 view
+    const walkToggle = document.getElementById('walk-toggle');
+    walkToggle.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        walkToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Update c3 preview (if visible)
+        const previewEl3 = document.getElementById('ws-c3-preview');
+        if (!previewEl3) return;
+        if (btn.dataset.view === 'sanitized') {
+          previewEl3.innerHTML = `My name is <span class="masked">[PERSON_01]</span>, PAN <span class="masked">[PAN_01]</span>, Aadhaar <span class="masked">[AADHAAR_01]</span>, email <span class="masked">[EMAIL_01]</span>. My salary is 18,00,000 INR. Help me calculate my tax liability under the new regime.`;
+        } else {
+          previewEl3.innerHTML = `My name is <span class="restored">Rahul Sharma</span>, PAN <span class="restored">ABCDE1234F</span>, Aadhaar <span class="restored">2345 6789 0124</span>, email <span class="restored">rahul@acme.in</span>. My salary is 18,00,000 INR. Help me calculate my tax liability under the new regime.`;
+        }
+      });
+    });
+
+    // Only start auto-play when the walkthrough card is opened
+    document.getElementById('card-walk').querySelector('.expand-header').addEventListener('click', () => {
+      setTimeout(() => {
+        if (document.getElementById('card-walk').classList.contains('open')) {
+          buildProgress();
+          showScene(0, 0);
+          startAuto();
+        } else {
+          if (timer) clearInterval(timer);
+        }
+      }, 20);
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function truncate(str, n) {
+      return str.length > n ? str.slice(0, n) + '...' : str;
+    }
+
+  })();
+  </script>
+</body>
+</html>

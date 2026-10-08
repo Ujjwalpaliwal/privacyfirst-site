@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Use Cases — PrivacyFirst</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .usecase-block {
+      margin-bottom: 64px;
+    }
+    .usecase-block:last-child {
+      margin-bottom: 0;
+    }
+    .usecase-card {
+      margin-bottom: 1px;
+    }
+    .compare-note {
+      font-size: 12px;
+      color: var(--text-3);
+      font-family: var(--mono);
+      padding: 8px 16px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-bottom: 48px;">
+    <div class="container">
+      <div class="section-label">Use Cases</div>
+      <h1 class="section-title">Who uses PrivacyFirst</h1>
+      <p class="section-sub">Every AI workflow that touches real data is a use case.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       USE CASES
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+
+      <!-- USE CASE 1: Developers -->
+      <div class="usecase-block">
+        <div class="card usecase-card">
+          <div class="card-label">Developers &amp; Coding Agents</div>
+          <div class="card-title">.env secret scrubbing via proxy</div>
+          <p class="card-body">An AI coding agent like opencode reads your .env file. Without PrivacyFirst, the full DATABASE_URL, API keys, and secrets are sent to the model verbatim. With the proxy active, they're replaced before the request leaves your machine.</p>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-pane">
+            <div class="compare-header before">Before — sent to AI</div>
+            <div class="compare-code">DATABASE_URL=postgres://admin:p@ssw0rd@prod.db.internal:5432/app
+OPENAI_API_KEY=sk-proj-abc123xyz...
+STRIPE_SECRET_KEY=sk_live_abc123xyz...
+REDIS_URL=redis://:password@cache.internal:6379</div>
+          </div>
+          <div class="compare-pane">
+            <div class="compare-header after">After — sanitized</div>
+            <div class="compare-code">DATABASE_URL=<span style="color:var(--amber)">[SECRET_01]</span>
+OPENAI_API_KEY=<span style="color:var(--amber)">[SECRET_02]</span>
+STRIPE_SECRET_KEY=<span style="color:var(--amber)">[SECRET_03]</span>
+REDIS_URL=<span style="color:var(--amber)">[SECRET_04]</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USE CASE 2: Tax & Finance -->
+      <div class="usecase-block">
+        <div class="card usecase-card">
+          <div class="card-label">Tax &amp; Finance Professionals</div>
+          <div class="card-title">Tax prompt with Aadhaar, PAN, and salary</div>
+          <p class="card-body">When asking an AI to help with ITR filing or tax advice, the prompt often contains the most sensitive data a person holds. PrivacyFirst masks it before the prompt ever reaches the model.</p>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-pane">
+            <div class="compare-header before">Before — sent to AI</div>
+            <div class="compare-code">My name is Rahul Sharma, PAN ABCDE1234F,
+Aadhaar 2345 6789 0124, email rahul@acme.in.
+My salary is 18,00,000 INR. Help me calculate
+my tax liability under the new regime.</div>
+          </div>
+          <div class="compare-pane">
+            <div class="compare-header after">After — sanitized</div>
+            <div class="compare-code">My name is <span style="color:var(--amber)">[PERSON_01]</span>, PAN <span style="color:var(--amber)">[PAN_01]</span>,
+Aadhaar <span style="color:var(--amber)">[AADHAAR_01]</span>, email <span style="color:var(--amber)">[EMAIL_01]</span>.
+My salary is 18,00,000 INR. Help me calculate
+my tax liability under the new regime.</div>
+          </div>
+        </div>
+        <div class="compare-note">Amounts are kept — only identifiers are masked.</div>
+      </div>
+
+      <!-- USE CASE 3: Customer Support -->
+      <div class="usecase-block">
+        <div class="card usecase-card">
+          <div class="card-label">Customer Support Agents</div>
+          <div class="card-title">Agent handling customer PII in ticket context</div>
+          <p class="card-body">Support agents paste customer records into AI assistants for quick replies. Card numbers, emails, and phone numbers get masked before the AI processes the ticket.</p>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-pane">
+            <div class="compare-header before">Before — sent to AI</div>
+            <div class="compare-code">Customer: Priya Menon, priya@example.com
+Card ending: 4111 1111 1111 1111
+Issue: Payment declined on order #ORD-8821</div>
+          </div>
+          <div class="compare-pane">
+            <div class="compare-header after">After — sanitized</div>
+            <div class="compare-code">Customer: <span style="color:var(--amber)">[PERSON_01]</span>, <span style="color:var(--amber)">[EMAIL_01]</span>
+Card ending: <span style="color:var(--amber)">[CARD_01]</span>
+Issue: Payment declined on order #ORD-8821</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USE CASE 4: Freelancers -->
+      <div class="usecase-block">
+        <div class="card usecase-card">
+          <div class="card-label">Freelancers &amp; Contract Work</div>
+          <div class="card-title">Client data in project briefs</div>
+          <p class="card-body">Freelancers often share client details with AI tools for drafting proposals, contracts, or reports. GST numbers, IFSCs, and email addresses are masked automatically.</p>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-pane">
+            <div class="compare-header before">Before — sent to AI</div>
+            <div class="compare-code">Client: Acme Corp
+GSTIN: 27ABCDE1234F1Z5
+Bank: SBIN0001234 / Card: 4111 1111 1111 1111
+Contact: cfo@acme.in, +91 98765 43210</div>
+          </div>
+          <div class="compare-pane">
+            <div class="compare-header after">After — sanitized</div>
+            <div class="compare-code">Client: Acme Corp
+GSTIN: <span style="color:var(--amber)">[GSTIN_01]</span>
+Bank: <span style="color:var(--amber)">[IFSC_01]</span> / Card: <span style="color:var(--amber)">[CARD_01]</span>
+Contact: <span style="color:var(--amber)">[EMAIL_01]</span>, <span style="color:var(--amber)">[PHONE_01]</span></div>
+          </div>
+        </div>
+        <div class="compare-note">Amounts are kept — only identifiers are masked.</div>
+      </div>
+
+      <!-- USE CASE 5: Enterprise -->
+      <div class="usecase-block">
+        <div class="card usecase-card">
+          <div class="card-label">Enterprise</div>
+          <div class="card-title">Policy-enforced proxy for team AI usage</div>
+          <p class="card-body">Organisations can deploy PrivacyFirst's proxy centrally and define allow/block lists. Every outgoing AI call is logged (metadata only — no originals stored) for compliance review.</p>
+          <p class="card-body mt-8" style="color: var(--text-3); font-size: 13px;">Coming in a future release: shared team policies, audit export.</p>
+        </div>
+
+        <div class="roadmap-list" style="border-top: none;">
+          <div class="roadmap-item">
+            <div class="roadmap-num">01</div>
+            <div class="roadmap-content">
+              <div class="roadmap-title">Centralised proxy deployment</div>
+            </div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-num">02</div>
+            <div class="roadmap-content">
+              <div class="roadmap-title">Shared allow/block lists</div>
+            </div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-num">03</div>
+            <div class="roadmap-content">
+              <div class="roadmap-title">Compliance-ready metadata log</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USE CASE 6: Education -->
+      <div class="usecase-block">
+        <div class="card usecase-card">
+          <div class="card-label">Education</div>
+          <div class="card-title">Student submitting assignment with real personal data</div>
+          <p class="card-body">Students asking AI for homework help sometimes include real contact info or ID numbers in their examples. PrivacyFirst acts as a safety net.</p>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-pane">
+            <div class="compare-header before">Before — sent to AI</div>
+            <div class="compare-code">Please check if my example is correct:
+Name: Rahul Kumar, Roll: 21BCE1234
+Aadhaar: 2345 6789 0124</div>
+          </div>
+          <div class="compare-pane">
+            <div class="compare-header after">After — sanitized</div>
+            <div class="compare-code">Please check if my example is correct:
+Name: <span style="color:var(--amber)">[PERSON_01]</span>, Roll: 21BCE1234
+Aadhaar: <span style="color:var(--amber)">[AADHAAR_01]</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+  <script src="js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How It Works — PrivacyFirst</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      margin-top: 32px;
+    }
+    .step-item {
+      display: flex;
+      gap: 24px;
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .step-item:last-child {
+      border-bottom: none;
+    }
+    .step-item:hover {
+      background: var(--bg-3);
+    }
+    .step-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--amber);
+      flex-shrink: 0;
+      width: 28px;
+      margin-top: 2px;
+      font-weight: 600;
+    }
+    .step-content {
+      flex: 1;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .step-body {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    .merge-note {
+      font-size: 12.5px;
+      color: var(--text-3);
+      margin-top: 12px;
+      font-family: var(--mono);
+      padding: 10px 16px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-bottom: 48px;">
+    <div class="container">
+      <div class="section-label">Technical Breakdown</div>
+      <h1 class="section-title">How PrivacyFirst works</h1>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 1 — ENGINE PIPELINE
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-label">Engine Pipeline</div>
+      <h2 class="section-title">Detect &rarr; Resolve &rarr; Vault &rarr; Sanitize</h2>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">Detect</div>
+            <p class="step-body">All 12 detectors run regex passes over the input text simultaneously. Validators (Verhoeff, Luhn) discard false positives before any span is recorded.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Resolve overlaps</div>
+            <p class="step-body">Spans are sorted by position. Overlapping detections keep the longest match. A PAN that matches inside a longer string yields to the encompassing detector.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">Vault</div>
+            <p class="step-body">Each unique value is normalized (whitespace stripped, digits-only for cards/Aadhaar) before lookup. Duplicate originals get the same placeholder — <code>2345 6789 0124</code> and <code>234567890124</code> both map to <code>[AADHAAR_01]</code>.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">Sanitize</div>
+            <p class="step-body">Text is rebuilt by replacing detected spans left-to-right. The sanitized string is what gets sent to the AI.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-32">
+        <div class="code-block">Input A : "2345 6789 0124"     →  normalize  →  "234567890124"
+Input B : "2345-6789-0124"     →  normalize  →  "234567890124"
+Both map to                                    <span class="hl">[AADHAAR_01]</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 2 — STREAM RESTORER
+  ══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">Stream Restorer</div>
+      <h2 class="section-title">Handling chunked SSE responses</h2>
+
+      <p class="section-sub mt-16">
+        AI APIs stream responses as Server-Sent Events. A placeholder like <code>[PERSON_01]</code> may arrive split across chunk boundaries — e.g. <code>[PER</code> in chunk 4 and <code>SON_01]</code> in chunk 5. The stream restorer buffers incomplete bracket sequences and only emits confirmed complete tokens.
+      </p>
+
+      <div class="mt-32">
+        <div class="code-block">Chunk 4: "Hello <span class="warn">[PER</span>"          → buffered (bracket open, no close)
+Chunk 5: "<span class="warn">SON_01]</span>, how"        → flush: "Hello <span class="ok">Rahul Sharma</span>, how"
+Chunk 6: " are you?"           → emit as-is</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 3 — PROXY INTERNALS
+  ══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">Proxy</div>
+      <h2 class="section-title">127.0.0.1:4040 — your local AI gateway</h2>
+
+      <div class="table-wrap mt-32">
+        <table>
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Upstream</th>
+              <th>Caller identified as</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-type">/v1/messages</td>
+              <td>api.anthropic.com</td>
+              <td>opencode / Claude Code</td>
+            </tr>
+            <tr>
+              <td class="td-type">/v1/chat/completions</td>
+              <td>api.openai.com</td>
+              <td>OpenAI SDK / generic clients</td>
+            </tr>
+            <tr>
+              <td class="td-type">/v1/responses</td>
+              <td>api.openai.com</td>
+              <td>Codex (responses API)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap mt-24">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">accept-encoding</td>
+              <td>Always <code>identity</code> — disables upstream compression for reliable body parsing</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Headers</td>
+              <td>All original headers passed through transparently</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Keys</td>
+              <td>Never stored — held in memory only, cleared on app exit</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">SANITIZE mode</td>
+              <td>Request body rewritten, SSE restored per-chunk</td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">PASSTHROUGH mode</td>
+              <td>Bytes forwarded unchanged; red RAW MODE banner shown app-wide</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 4 — SECURITY MODEL
+  ══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">Security</div>
+      <h2 class="section-title">What the proxy does and doesn't do</h2>
+
+      <div class="claim-grid mt-32">
+        <div class="claim-col yes">
+          <div class="claim-col-title">Does</div>
+          <ul class="claim-list">
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Binds to 127.0.0.1 only</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Passes all original headers through</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Never stores API keys</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>CSP: no inline eval, no external resources</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Proxy log stores metadata only — no original text</span>
+            </li>
+          </ul>
+        </div>
+        <div class="claim-col no">
+          <div class="claim-col-title">Doesn't</div>
+          <ul class="claim-list">
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Doesn't intercept HTTPS between tools and proxy (loopback only)</span>
+            </li>
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Doesn't log request bodies</span>
+            </li>
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Doesn't store vault entries to disk (memory-only)</span>
+            </li>
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Doesn't support multi-user or remote access</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 5 — AUTO-PROTECT CONFIG
+  ══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">Auto-Protect</div>
+      <h2 class="section-title">Exact file changes, previewed before applied</h2>
+
+      <p class="section-sub mt-16">
+        When you enable Auto-protect in Settings (or run <code>prifir</code>), PrivacyFirst detects installed tools and writes minimal configuration. Every file is backed up to <code>~/.privacyfirst/backups/&lt;timestamp&gt;/</code> before being touched.
+      </p>
+
+      <div class="table-wrap mt-32">
+        <table>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>File written</th>
+              <th>What's added</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">opencode</td>
+              <td class="td-type">opencode.json</td>
+              <td><code>provider.anthropic.options.baseURL<br>= "http://127.0.0.1:4040/v1"</code></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Claude Code</td>
+              <td class="td-type">~/.claude/settings.json</td>
+              <td><code>env.ANTHROPIC_BASE_URL<br>= "http://127.0.0.1:4040"</code></td>
+            </tr>
+            <tr>
+              <td style="color: var(--text); font-weight: 500;">Codex</td>
+              <td class="td-type">~/.codex/config.toml</td>
+              <td><code>openai_base_url<br>= "http://127.0.0.1:4040/v1"</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="merge-note">
+        Merge strategy: existing keys are never overwritten. Only the base-URL key is added. Original file backed up with timestamp.<br>
+        Note the per-tool URL convention: opencode and Codex expect the <code>/v1</code> suffix, Claude Code expects the bare origin.
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+  <script src="js/components.js"></script>
+</body>
+</html>

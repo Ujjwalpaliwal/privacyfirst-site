@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivacyFirst — Local AI privacy, zero cloud exposure</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Page-specific overrides */
+    .hero-terminal {
+      margin-top: 40px;
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .hero-terminal-bar {
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .term-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border-l);
+    }
+    .hero-terminal-body {
+      padding: 20px 24px;
+      color: var(--text-2);
+      white-space: pre;
+    }
+    .hero-terminal-body .lbl {
+      color: var(--text-3);
+    }
+    .hero-terminal-body .hl {
+      color: var(--amber);
+    }
+
+    /* Architecture SVG wrapper */
+    .arch-diagram svg {
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+    }
+
+    /* Limitations section */
+    .limitations-note {
+      font-size: 12.5px;
+      color: var(--text-3);
+      margin-top: 4px;
+    }
+
+    /* Release note */
+    .release-note {
+      border: 1px solid rgba(212, 160, 23, 0.3);
+      background: var(--amber-dim);
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--amber);
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+
+  <!-- ═══════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-badge">Local detection. Nothing leaves unmasked.</div>
+
+        <h1 class="hero-title">
+          Only the <em>sanitized</em><br>text leaves the device.
+        </h1>
+
+        <p class="hero-sub">
+          PrivacyFirst intercepts every AI call. It detects PII, scrubs it locally, sends only placeholders upstream — and restores replies before you ever see them.
+        </p>
+
+        <div class="hero-actions">
+          <a href="demo.html" class="btn btn-primary">Try the live demo</a>
+          <a href="howitworks.html" class="btn btn-secondary">How it works</a>
+        </div>
+
+        <div class="hero-terminal">
+          <div class="hero-terminal-bar">
+            <span class="term-dot"></span>
+            <span class="term-dot"></span>
+            <span class="term-dot"></span>
+          </div>
+          <div class="hero-terminal-body"><span class="lbl">Input  :</span> My name is <span class="hl">Rahul Sharma</span>, PAN <span class="hl">ABCDE1234F</span>, Aadhaar <span class="hl">2345 6789 0124</span>...
+<span class="lbl">Output :</span> My name is <span class="hl">[PERSON_01]</span>, PAN <span class="hl">[PAN_01]</span>, Aadhaar <span class="hl">[AADHAAR_01]</span>...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       PROBLEM STRIP
+  ══════════════════════════════════════════════════════ -->
+  <div class="problem-strip">
+    <div class="container">
+      <div class="problem-strip-inner">
+        <div class="problem-item">
+          <span class="problem-dot"></span>
+          <span class="problem-text">One prompt can leak your identity</span>
+        </div>
+        <div class="problem-item">
+          <span class="problem-dot"></span>
+          <span class="problem-text">Secrets end up in model training</span>
+        </div>
+        <div class="problem-item">
+          <span class="problem-dot"></span>
+          <span class="problem-text">You never see what the AI actually received</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       HOW IT WORKS
+  ══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">Three modes. One guarantee.</h2>
+
+      <div class="bento bento-3 mt-32">
+        <div class="bento-cell">
+          <div class="card-label">Mode 01</div>
+          <div class="card-title">Chat Checkpoint</div>
+          <p class="card-body">Paste or type any prompt. PrivacyFirst detects PII inline, shows you exactly what will be sent, and restores placeholders in the AI reply.</p>
+        </div>
+        <div class="bento-cell">
+          <div class="card-label">Mode 02</div>
+          <div class="card-title">Auto-protect</div>
+          <p class="card-body">One toggle in Settings configures opencode, Claude Code, and Codex to route through the local proxy. Detection is invisible and automatic.</p>
+        </div>
+        <div class="bento-cell">
+          <div class="card-label">Mode 03</div>
+          <div class="card-title">Live Proxy</div>
+          <p class="card-body">Every outgoing API call passes through 127.0.0.1:4040. Secrets, credentials, and PII are replaced before upstream — restored before the tool sees the reply.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       DETECTOR TABLE
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-label">Detectors</div>
+      <h2 class="section-title">What gets detected</h2>
+
+      <div class="table-wrap mt-32">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Method</th>
+              <th>Example</th>
+              <th>Checksum validated?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-type">AADHAAR</td>
+              <td>Regex + Verhoeff</td>
+              <td>2345 6789 0124</td>
+              <td class="td-check">Yes — invalid skipped</td>
+            </tr>
+            <tr>
+              <td class="td-type">PAN</td>
+              <td>Regex pattern</td>
+              <td>ABCDE1234F</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">CARD</td>
+              <td>Regex + Luhn</td>
+              <td>4111 1111 1111 1111</td>
+              <td class="td-check">Yes — invalid skipped</td>
+            </tr>
+            <tr>
+              <td class="td-type">EMAIL</td>
+              <td>RFC-like regex</td>
+              <td>rahul@acme.in</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">PHONE</td>
+              <td>Indian 10-digit</td>
+              <td>+91 98765 43210</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">UPI</td>
+              <td>handle@provider</td>
+              <td>rahul@upi</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">IFSC</td>
+              <td>Bank code</td>
+              <td>SBIN0001234</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">GSTIN</td>
+              <td>GST pattern</td>
+              <td>27ABCDE1234F1Z5</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">IP</td>
+              <td>IPv4</td>
+              <td>192.168.1.1</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">SECRET</td>
+              <td>env key=value</td>
+              <td>STRIPE_SECRET_KEY=sk_live_...</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">SECRET</td>
+              <td>Token formats</td>
+              <td>sk-proj-…, AKIA…, ghp_…, JWT</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">DB URL</td>
+              <td>Connection string</td>
+              <td>mongodb://user:pass@host</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">PERSON</td>
+              <td>Context heuristic</td>
+              <td>"My name is Rahul Sharma"</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td class="td-type">PERSON</td>
+              <td>Local NER (compromise.js)</td>
+              <td>"John called me" — no context phrase</td>
+              <td class="td-no">Inferred, not guaranteed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       ARCHITECTURE
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-label">Architecture</div>
+      <h2 class="section-title">Architecture</h2>
+
+      <div class="arch-diagram mt-32">
+        <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture diagram showing data flow through PrivacyFirst">
+          <!-- Background -->
+          <rect width="700" height="160" fill="#111111"/>
+
+          <!-- Node: Your Prompt -->
+          <rect x="20" y="52" width="140" height="56" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+          <text x="90" y="83" text-anchor="middle" fill="#ededed" font-family="'GeistMono', monospace" font-size="12" font-weight="500">Your Prompt</text>
+
+          <!-- Arrow 1: Prompt -> Engine -->
+          <line x1="160" y1="80" x2="258" y2="80" stroke="#d4a017" stroke-width="1.5"/>
+          <polygon points="258,75 268,80 258,85" fill="#d4a017"/>
+
+          <!-- Node: PrivacyFirst Engine -->
+          <rect x="268" y="40" width="164" height="80" fill="#1a1a1a" stroke="#d4a017" stroke-width="1"/>
+          <text x="350" y="68" text-anchor="middle" fill="#ededed" font-family="'GeistMono', monospace" font-size="12" font-weight="500">PrivacyFirst</text>
+          <text x="350" y="84" text-anchor="middle" fill="#ededed" font-family="'GeistMono', monospace" font-size="12" font-weight="500">Engine</text>
+          <text x="350" y="108" text-anchor="middle" fill="#d4a017" font-family="'GeistMono', monospace" font-size="10">(127.0.0.1:4040)</text>
+
+          <!-- Label above arrow 1 -->
+          <text x="208" y="62" text-anchor="middle" fill="#a0a0a0" font-family="'GeistMono', monospace" font-size="10">RAW</text>
+
+          <!-- Arrow 2: Engine -> AI API (with SANITIZED label) -->
+          <line x1="432" y1="66" x2="518" y2="66" stroke="#d4a017" stroke-width="1.5"/>
+          <polygon points="518,61 528,66 518,71" fill="#d4a017"/>
+          <text x="480" y="56" text-anchor="middle" fill="#d4a017" font-family="'GeistMono', monospace" font-size="10">[SANITIZED]</text>
+
+          <!-- Arrow 3: AI API -> Engine (RESTORED, flows left) -->
+          <line x1="528" y1="96" x2="432" y2="96" stroke="#666" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <polygon points="432,91 422,96 432,101" fill="#666"/>
+          <text x="480" y="116" text-anchor="middle" fill="#666666" font-family="'GeistMono', monospace" font-size="10">[RESTORED]</text>
+
+          <!-- Node: AI API -->
+          <rect x="528" y="52" width="140" height="56" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+          <text x="598" y="83" text-anchor="middle" fill="#ededed" font-family="'GeistMono', monospace" font-size="12" font-weight="500">AI API</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       HONESTY SECTION
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-label">What We Claim</div>
+      <h2 class="section-title">Honest by design</h2>
+
+      <div class="claim-grid mt-32">
+        <div class="claim-col yes">
+          <div class="claim-col-title">We claim</div>
+          <ul class="claim-list">
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Local detection — no text sent to any server for scanning</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Local vault — placeholder-to-original map never leaves your device</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>Exactly what the AI sees — you review sanitized text before sending</span>
+            </li>
+            <li>
+              <span class="claim-icon">[+]</span>
+              <span>User-initiated only — nothing masked without your knowledge</span>
+            </li>
+          </ul>
+        </div>
+        <div class="claim-col no">
+          <div class="claim-col-title">We don't claim</div>
+          <ul class="claim-list">
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Full anonymization — inferred names are a best-effort guess, not a guarantee</span>
+            </li>
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>100% detection rate — we reduce exposure, not eliminate risk</span>
+            </li>
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Attachment/image scanning — text only in this version</span>
+            </li>
+            <li>
+              <span class="claim-icon">[-]</span>
+              <span>Protection against model memorization</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       LIMITATIONS
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-label">Limitations</div>
+      <h2 class="section-title">Known gaps</h2>
+
+      <div class="roadmap-list mt-32">
+        <div class="roadmap-item">
+          <div class="roadmap-num">01</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Names in unusual phrasing</div>
+            <div class="roadmap-desc">Local NER catches bare names, but a name at the very start of a sentence ("Priya Menon called") can still slip through</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">02</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Quasi-identifiers</div>
+            <div class="roadmap-desc">Salary + location + age combined can re-identify without any individual PII</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">03</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Attachments</div>
+            <div class="roadmap-desc">PDFs, images, screenshots not scanned in current version</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">04</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Non-text modalities</div>
+            <div class="roadmap-desc">Audio, video not covered</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">05</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Antigravity</div>
+            <div class="roadmap-desc">Internal Google endpoints; no supported override (known gap)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       ROADMAP
+  ══════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-label">Roadmap</div>
+      <h2 class="section-title">What's next</h2>
+
+      <div class="roadmap-list mt-32">
+        <div class="roadmap-item">
+          <div class="roadmap-num">01</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Stronger local NER</div>
+            <div class="roadmap-desc">Shipped: compromise.js detects bare names with no context phrase. Next: sentence-initial names and non-English scripts</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">02</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">File & PDF scanning</div>
+            <div class="roadmap-desc">Text extraction + detection for attached documents</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">03</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">OCR</div>
+            <div class="roadmap-desc">Screenshot and image text detection</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">04</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Browser extension</div>
+            <div class="roadmap-desc">Inline detection for ChatGPT, Claude.ai, Gemini</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">05</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Encrypted vault</div>
+            <div class="roadmap-desc">Optional AES-256 persistence with OS keychain</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-num">06</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title">Team policies</div>
+            <div class="roadmap-desc">Shared allow/block lists for orgs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+  <script src="js/components.js"></script>
+</body>
+</html>
